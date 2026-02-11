@@ -1,0 +1,71 @@
+# XAI SER (Speech Emotion Recognition) - Project Walkthrough & Technical Brief
+
+## 1. Project Overview
+This project is a Speech Emotion Recognition (SER) system that uses Explainable AI (XAI) to analyze audio input (live recording or file upload) and predict emotions. It provides transparency into its predictions using SHAP (SHapley Additive exPlanations) values to show which acoustic features influenced the result.
+
+## 2. Technology Stack
+
+### Frontend
+- **Framework**: React 18 (SPA) built with Vite.
+- **UI Library**: Shadcn UI + Tailwind CSS for styling.
+- **Audio Handling**: Web Audio API for capturing microphone input and custom WAV encoding logic (`LiveAudio.tsx`).
+- **State Management**: React Hooks (`useState`, `useRef`).
+- **Routing**: `react-router-dom`.
+
+### Backend
+- **Server**: Flask (Python).
+- **API**: RESTful endpoints serving JSON.
+- **Static Files**: Serves the compiled React frontend from the `dist` directory.
+
+### Machine Learning & Data Processing
+- **Library**: `librosa` for audio processing and feature extraction.
+- **Model**: Pre-trained classifier stored in `models/model.joblib` (likely Tree-based, e.g., RandomForest/XGBoost, given `shap.TreeExplainer`).
+- **Explainability**: `shap` library for feature importance visualization.
+- **Data Handling**: `pandas`, `numpy`.
+- **Reference Data**: `data/cremad_handcrafted.csv` containing feature reference points for KNN-based stabilization.
+
+## 3. Technical Architecture & Data Flow
+
+### A. Feature Extraction Pipeline
+The core logic resides in `backend/app.py`.
+1. **Audio Input**: Takes raw audio (WAV/WebM).
+2. **Preprocessing**:
+    - Resamples audio to 16kHz.
+    - Trims silence (top_db=25).
+    - Normalizes volume amplitude.
+3. **Feature Extraction**:
+    - **Energy**: Root Mean Square (RMS).
+    - **Pitch**: Spectral Centroid.
+    - **ZCR**: Zero Crossing Rate.
+4. **Stabilization (Novelty)**:
+    - Extracted traits are compared against a reference dataset (`cremad_handcrafted.csv`) using K-Nearest Neighbors (KNN).
+    - The top 15 nearest samples are retrieved to provide a robust input vector for the classifier, reducing noise from microphone variations.
+
+### B. Live Audio Flow (`LiveAudio.tsx` -> `app.py`)
+1. **Capture**: React app requests microphone access.
+2. **Processing**: `ScriptProcessorNode` captures raw PCM data.
+3. **Encoding**: Raw float samples are encoded into a valid WAV file blob on the client side.
+4. **Transport**: Wav Blob is sent via `POST /api/predict` as `FormData`.
+5. **Backend Logic**:
+    - Detects "record" filename.
+    - Splits audio into 3 chunks for robust voting.
+    - Predicts emotion for each chunk.
+    - Returns the majority vote emotion and aggregated confidence score.
+
+### C. File Upload Flow (`UploadAudio.tsx` -> `app.py`)
+1. **Upload**: User selects an audio file.
+2. **Backend Logic**:
+    - Extracts features from the entire file (single pass).
+    - Uses KNN stabilization.
+    - Predicts emotion directly.
+
+## 4. Explainability (XAI)
+- After prediction, the system calculates SHAP values to explain *why* a specific emotion was chosen.
+- It identifies the top 5 influencing features (e.g., "High Pitch", "Low Energy") and presents them to the user in the UI.
+
+## 5. Directory Structure Key Components
+- `/src`: React source code.
+- `/backend`: Flask application (`app.py`).
+- `/models`: Serialized ML model (`model.joblib`).
+- `/data`: Reference dataset for KNN (`cremad_handcrafted.csv`).
+- `/dist`: Compiled frontend code (served by Flask).

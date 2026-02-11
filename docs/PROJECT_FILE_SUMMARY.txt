@@ -1,0 +1,88 @@
+# XAI Speech Emotion Recognition Project Structure
+
+This document provides a summary of the project's organized structure and how each component contributes to the overall Speech Emotion Recognition (SER) system.
+
+## Directory Structure
+
+- **`/backend`**: Contains the Flask application (`app.py`).
+- **`/ml_core/scripts`**: Core ML logic (training, feature extraction, CLI tools).
+- **`/ml_core/visualization`**: XAI interpretability scripts (SHAP).
+- **`/data`**: CSV datasets used for training and analysis.
+- **`/models`**: Saved model files (`model.joblib`).
+- **`/src`**: Frontend React source code.
+- **`/dist`**: Built frontend application served by Flask.
+- **`/docs`**: Project documentation and walkthroughs.
+
+## Backend and ML Core
+... [Rest of the file follows]
+
+### app.py
+- **Description**: The main Flask backend application.
+- **Contribution**: 
+  - Serves the React frontend (SPA) from the 'dist' directory.
+  - Provides the '/api/predict' endpoint for processing both uploaded and live-recorded audio.
+  - Handles audio processing using librosa and performs emotion prediction using the pre-trained model.
+  - Generates XAI (SHAP) explanations to provide transparency into predictions.
+
+### train_model.py
+- **Description**: The core machine learning training script.
+- **Contribution**: 
+  - Loads handcrafted features from the CREMA-D dataset.
+  - Trains a RandomForestClassifier to recognize emotions.
+  - Saves the resulting 'model.joblib' which is used by the backend.
+
+### extract_cremad_features.py
+- **Description**: Data preprocessing utility.
+- **Contribution**: 
+  - Extracts acoustic features (RMS, ZCR, Spectral Centroid) from the CREMA-D audio files.
+  - Creates the 'cremad_handcrafted.csv' file that serves as the training data for the model.
+
+### predict_audio.py
+- **Description**: Standalone CLI prediction tool.
+- **Contribution**: 
+  - Allows for quick manual testing of the model on single audio files without running the full web app.
+
+### visualize_global.py & visualize_local.py
+- **Description**: XAI Visualization tools.
+- **Contribution**: 
+  - Provide interpretability insights using SHAP, showing which acoustic features are most important globally (entire model) and locally (individual prediction).
+
+## Frontend (React SPA)
+
+### src/App.tsx
+- **Description**: Root React component.
+- **Contribution**: Manages application routing and global state providers (routing, data fetching, UI feedback).
+
+### src/pages/Index.tsx
+- **Description**: Landing page.
+- **Contribution**: Provides a premium, user-friendly entry point to the application's features.
+
+### src/pages/UploadAudio.tsx
+- **Description**: File upload interface.
+- **Contribution**: Handles file selection, drag-and-drop, and communication with the backend for static audio files.
+
+### src/pages/LiveAudio.tsx
+- **Description**: Real-time recording interface.
+- **Contribution**: Implements live audio capture and browser-side WAV encoding to ensure compatibility with the backend analysis engine.
+
+### src/components/EmotionResult.tsx
+- **Description**: Results visualization component.
+- **Contribution**: Displays the predicted emotion, its associated emoji, and the AI's explanation in a clear, accessible format.
+
+## Configuration and Build
+
+### package.json
+- **Description**: Node.js project configuration.
+- **Contribution**: Manages all frontend dependencies and build scripts for the Vite environment.
+
+### vite.config.ts
+- **Description**: Vite build configuration.
+- **Contribution**: Optimizes the React frontend for production and manages path aliases for cleaner code.
+
+### requirements.txt
+- **Description**: Python dependency list.
+- **Contribution**: Ensures a consistent backend environment with the necessary ML and audio processing libraries.
+
+### index.html
+- **Description**: SPA Entry Point.
+- **Contribution**: The base HTML file where the React application is mounted.

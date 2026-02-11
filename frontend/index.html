@@ -1,0 +1,30 @@
+<!--
+ FILE: index.html
+ DESCRIPTION: The main HTML entry point for the single-page application (SPA).
+ CONTRIBUTION: 
+ 1. Serves as the container for the React application (mounting point for #root).
+ 2. Contains global metadata, project title, and styling configurations.
+ 3. Loaded by the Flask server as the primary interface for users.
+-->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- TODO: Set the document title to the name of your application -->
+  <title>XAI SER Application</title>
+  <meta name="description" content="XAI-based Speech Emotion Recognition" />
+  <meta name="author" content="XAI SER Team" />
+
+  <meta property="og:title" content="XAI SER Application" />
+  <meta property="og:description" content="XAI-based Speech Emotion Recognition" />
+  <meta property="og:type" content="website" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
