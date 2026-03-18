@@ -236,8 +236,26 @@ def extract_audio_traits_uploaded(audio_path):
     energy = float(np.mean(librosa.feature.rms(y=y)))
     pitch = float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr)))
     zcr = float(np.mean(librosa.feature.zero_crossing_rate(y)))
+    
+    # New layman-friendly traits
+    sharpness = float(np.mean(librosa.feature.zero_crossing_rate(y)))
+    brightness = float(np.mean(librosa.feature.spectral_bandwidth(y=y, sr=sr)))
+    pureness = float(np.mean(librosa.feature.spectral_flatness(y=y)))
+    depth = float(np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr)))
 
-    return np.array([[energy, pitch, zcr]])
+    # Extract tempo
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+    tempo = float(librosa.feature.tempo(onset_envelope=onset_env, sr=sr)[0])
+
+    return np.array([[energy, pitch, zcr]]), {
+        "energy": energy, 
+        "pitch": pitch, 
+        "tempo": tempo,
+        "sharpness": sharpness,
+        "brightness": brightness,
+        "pureness": pureness,
+        "depth": depth
+    }
 
 # ======================================================
 # ✅ Live Audio Traits (NEW & IMPROVED for recording)
@@ -260,8 +278,26 @@ def extract_audio_traits_live(audio_path):
     energy = float(np.mean(librosa.feature.rms(y=y)))
     pitch = float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr)))
     zcr = float(np.mean(librosa.feature.zero_crossing_rate(y)))
+    
+    # New layman-friendly traits
+    sharpness = float(np.mean(librosa.feature.zero_crossing_rate(y)))
+    brightness = float(np.mean(librosa.feature.spectral_bandwidth(y=y, sr=sr)))
+    pureness = float(np.mean(librosa.feature.spectral_flatness(y=y)))
+    depth = float(np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr)))
 
-    return np.array([[energy, pitch, zcr]])
+    # Extract tempo
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+    tempo = float(librosa.feature.tempo(onset_envelope=onset_env, sr=sr)[0])
+
+    return np.array([[energy, pitch, zcr]]), {
+        "energy": energy, 
+        "pitch": pitch, 
+        "tempo": tempo,
+        "sharpness": sharpness,
+        "brightness": brightness,
+        "pureness": pureness,
+        "depth": depth
+    }
 
 # ======================================================
 # ✅ Live Prediction Voting (BEST FIX)
@@ -370,9 +406,11 @@ def predict():
         if "record" in filename.lower() or audio.content_type == "audio/webm":
             print("DEBUG: Processing as live recording")
             final_pred, confidence = predict_live_with_voting(path)
+            # For traits in display, just extract once from full file
+            _, traits = extract_audio_traits_live(path)
         else:
             print("DEBUG: Processing as upload")
-            live_traits = extract_audio_traits_uploaded(path)
+            live_traits, traits = extract_audio_traits_uploaded(path)
             live_scaled = scaler.transform(live_traits)
             distances = np.linalg.norm(TRAIT_MATRIX - live_scaled, axis=1)
             nearest_idx = np.argsort(distances)[:15]
@@ -385,9 +423,8 @@ def predict():
 
         # Explanation logic
         print("DEBUG: Generating SHAP explanation")
-        distances = np.linalg.norm(TRAIT_MATRIX - scaler.transform(
-            extract_audio_traits_uploaded(path)
-        ), axis=1)
+        live_traits_for_shap, _ = extract_audio_traits_uploaded(path)
+        distances = np.linalg.norm(TRAIT_MATRIX - scaler.transform(live_traits_for_shap), axis=1)
         nearest_idx = np.argsort(distances)[:15]
         nearest_samples = X_FULL.iloc[nearest_idx]
         explanation, top_features = generate_shap_explanation(nearest_samples, final_pred)
@@ -398,7 +435,8 @@ def predict():
             "label": str(LABEL_MAP.get(final_pred, final_pred)),
             "confidence": float(confidence),
             "explanation": str(explanation),
-            "top_features": [(str(f), float(v)) for f, v in top_features]
+            "top_features": [(str(f), float(v)) for f, v in top_features],
+            "traits": traits
         })
 
     except Exception as e:
