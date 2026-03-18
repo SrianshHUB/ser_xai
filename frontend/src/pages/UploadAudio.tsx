@@ -20,7 +20,7 @@ const UploadAudio = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [result, setResult] = useState<{ emotion: string; explanation: string } | null>(null);
+  const [result, setResult] = useState<{ emotion: string; explanation: string; traits?: any } | null>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -60,6 +60,7 @@ const UploadAudio = () => {
       setResult({
         emotion: data.emotion,
         explanation: data.explanation,
+        traits: data.traits,
       });
     } catch (error) {
       console.error("Error analyzing audio:", error);
@@ -75,7 +76,7 @@ const UploadAudio = () => {
   };
 
   if (result) {
-    return <EmotionResult emotion={result.emotion} explanation={result.explanation} onReset={handleReset} />;
+    return <EmotionResult emotion={result.emotion} explanation={result.explanation} traits={result.traits} onReset={handleReset} />;
   }
 
   return (

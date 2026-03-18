@@ -19,7 +19,7 @@ const LiveAudio = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [result, setResult] = useState<{ emotion: string; explanation: string } | null>(null);
+  const [result, setResult] = useState<{ emotion: string; explanation: string; traits?: any } | null>(null);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -169,6 +169,7 @@ const LiveAudio = () => {
       setResult({
         emotion: data.emotion,
         explanation: data.explanation,
+        traits: data.traits,
       });
     } catch (error) {
       console.error("Error analyzing live audio:", error);
@@ -183,7 +184,7 @@ const LiveAudio = () => {
   };
 
   if (result) {
-    return <EmotionResult emotion={result.emotion} explanation={result.explanation} onReset={handleReset} />;
+    return <EmotionResult emotion={result.emotion} explanation={result.explanation} traits={result.traits} onReset={handleReset} />;
   }
 
   return (

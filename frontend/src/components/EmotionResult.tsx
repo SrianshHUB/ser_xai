@@ -9,11 +9,36 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import {
+  Zap,
+  Activity,
+  Timer,
+  Music,
+  Wind,
+  Waves,
+  Volume2,
+  Info,
+  RefreshCw,
+  Flame,
+  Droplet,
+  AudioWaveform,
+  Mic2,
+  ArrowLeft,
+  RotateCcw
+} from "lucide-react";
 
 interface EmotionResultProps {
   emotion: string;
   explanation: string;
+  traits?: {
+    energy: number;
+    pitch: number;
+    tempo: number;
+    sharpness: number;
+    brightness: number;
+    pureness: number;
+    depth: number;
+  };
   onReset?: () => void;
 }
 
@@ -27,7 +52,7 @@ const emotionConfig: Record<string, { emoji: string; label: string; color: strin
   neutral: { emoji: "😐", label: "Neutral", color: "from-gray-400 to-slate-500" },
 };
 
-const EmotionResult = ({ emotion, explanation, onReset }: EmotionResultProps) => {
+const EmotionResult = ({ emotion, explanation, traits, onReset }: EmotionResultProps) => {
   const navigate = useNavigate();
   const config = emotionConfig[emotion.toLowerCase()] || emotionConfig.neutral;
 
@@ -49,7 +74,7 @@ const EmotionResult = ({ emotion, explanation, onReset }: EmotionResultProps) =>
         </Button>
       </motion.div>
 
-      <div className="flex-1 flex flex-col items-center justify-center max-w-lg mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -89,9 +114,99 @@ const EmotionResult = ({ emotion, explanation, onReset }: EmotionResultProps) =>
             <div className="w-12 h-px bg-white/10 mx-auto mb-6" />
 
             {/* Explanation */}
-            <p className="text-muted-foreground leading-relaxed text-base">
+            <p className="text-muted-foreground leading-relaxed text-base mb-8">
               {explanation}
             </p>
+
+            {/* Acoustic Traits */}
+            {traits && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/10 pt-8 mt-4 text-left">
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Energy</span>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, traits.energy * 1000)}%` }}
+                      transition={{ duration: 1, delay: 0.5 }}
+                      className="h-full bg-amber-400"
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-white/50">{traits.energy.toFixed(3)}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Pitch</span>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, traits.pitch / 40)}%` }}
+                      transition={{ duration: 1, delay: 0.6 }}
+                      className="h-full bg-blue-400"
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-white/50">{Math.round(traits.pitch)} Hz</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Tempo</span>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, (traits.tempo - 60) / 1.2)}%` }}
+                      transition={{ duration: 1, delay: 0.7 }}
+                      className="h-full bg-green-400"
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-white/50">{Math.round(traits.tempo)} BPM</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Pureness</span>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, traits.pureness * 2000)}%` }}
+                      transition={{ duration: 1, delay: 0.8 }}
+                      className="h-full bg-rose-400"
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-white/50">Tonal</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Sharpness</span>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, traits.sharpness * 400)}%` }}
+                      transition={{ duration: 1, delay: 0.9 }}
+                      className="h-full bg-purple-400"
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-white/50">{traits.sharpness.toFixed(3)}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Brightness</span>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, traits.brightness / 40)}%` }}
+                      transition={{ duration: 1, delay: 1.0 }}
+                      className="h-full bg-cyan-400"
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-white/50">{Math.round(traits.brightness)}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Sound Depth</span>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, traits.depth / 80)}%` }}
+                      transition={{ duration: 1, delay: 1.1 }}
+                      className="h-full bg-indigo-400"
+                    />
+                  </div>
+                  <span className="text-xs font-mono text-white/50">{Math.round(traits.depth)} Hz</span>
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Actions */}
