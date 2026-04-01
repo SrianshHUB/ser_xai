@@ -1,0 +1,12 @@
+# FILE: requirements.txt
+# DESCRIPTION: List of Python dependencies for the Streamlit App.
+# CONTRIBUTION: Ensures that the Streamlit server, audio processing (librosa), and ML libraries (scikit-learn, shap, joblib) are consistent across environments.
+streamlit>=1.38.0
+librosa>=0.9.0
+pandas>=1.3.0
+numpy>=1.21.0
+scikit-learn>=1.0.0
+joblib>=1.0.0
+soundfile>=0.10.0
+shap>=0.40.0
+pydub>=0.25.0  # For audio format conversion (optional but recommended)
