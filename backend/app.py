@@ -211,8 +211,8 @@ TRAIT_MATRIX = scaler.fit_transform(DF[TRAIT_COLS])
 # ===============================
 # Upload folder
 # ===============================
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+import tempfile
+UPLOAD_FOLDER = tempfile.gettempdir()
 
 # ===============================
 # Label map
